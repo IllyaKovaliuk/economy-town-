@@ -4,6 +4,7 @@ Run:
     streamlit run dashboard.py
 """
 
+import datetime as dt
 import json
 import math
 import sqlite3
@@ -151,6 +152,36 @@ def wealth_by_round(states: pd.DataFrame, price_pivot: pd.DataFrame) -> pd.DataF
         )
         records.append({"round": rnd, "agent": row["agent"], "wealth": wealth})
     return pd.DataFrame(records)
+
+
+def live_status_line(tx: pd.DataFrame) -> str:
+    """A little 'the town is alive right now' readout: when the last phase actually
+    ran (real timestamp) and when the next one is due, based on the GitHub Actions
+    schedule (:07 and :37 past every hour)."""
+    try:
+        latest = dt.datetime.fromisoformat(tx["timestamp"].max())
+        if latest.tzinfo is None:
+            latest = latest.replace(tzinfo=dt.timezone.utc)
+    except (TypeError, ValueError):
+        return ""
+
+    now = dt.datetime.now(dt.timezone.utc)
+    minutes_since = max(int((now - latest).total_seconds() // 60), 0)
+
+    candidates = []
+    for hour_offset in (0, 1):
+        base = (now + dt.timedelta(hours=hour_offset)).replace(second=0, microsecond=0)
+        for minute in (7, 37):
+            candidate = base.replace(minute=minute)
+            if candidate > now:
+                candidates.append(candidate)
+    next_tick = min(candidates)
+    minutes_until = max(int((next_tick - now).total_seconds() // 60) + 1, 0)
+
+    return (
+        f"🕐 Town last moved **{minutes_since} min ago** · next tick in **~{minutes_until} min** "
+        "(automatic, every 30 min via GitHub Actions)"
+    )
 
 
 def compute_leader(tx: pd.DataFrame) -> tuple[str, int] | None:
@@ -418,6 +449,10 @@ if data is None or data["transactions"].empty:
 tx, states, prices, crises, deaths = (
     data["transactions"], data["agent_states"], data["prices"], data["crisis_events"], data["deaths"]
 )
+
+status_line = live_status_line(tx)
+if status_line:
+    st.caption(status_line)
 
 last_round = int(states["round"].max())
 latest_states = states[states["round"] == last_round].copy()

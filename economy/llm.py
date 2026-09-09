@@ -78,8 +78,18 @@ def build_prompt(
     private_block = "\n".join(f"- {p}" for p in private_context) if private_context else "(no private messages yet)"
     social_block = "\n".join(f"- {s}" for s in social_context) if social_context else "(no political moves yet)"
 
+    day_one_line = (
+        "\n\nThis is it — the first day you're fully facing what happened. The old world "
+        "is gone, and it's just now sinking in for real. You're disoriented, maybe scared, "
+        "processing it in real time along with everyone else. It's natural to say something "
+        "out loud about it (public_message) or confide in someone privately — react like a "
+        "real person would on the day it actually hits them, not like someone who's had "
+        "months to get used to it."
+        if day_number == 1 else ""
+    )
+
     return (
-        f"It's {phase_label} on Day {day_number} of the town's ongoing story. "
+        f"It's {phase_label} on Day {day_number} of the town's ongoing story.{day_one_line}\n"
         f"You are {agent.name}, role: {agent.role.value}.\n"
         f"Personality: {agent.personality}.\n"
         f"Your knowledge of finance/economics: {agent.knowledge}\n"
