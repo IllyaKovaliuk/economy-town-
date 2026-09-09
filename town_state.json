@@ -1,0 +1,160 @@
+{
+  "last_round": 1,
+  "market_prices": {
+    "food": 1.93,
+    "water": 1.5,
+    "debt_note": 1.0
+  },
+  "agents": [
+    {
+      "name": "Marcus",
+      "role": "Financier",
+      "personality": "calculating, careful with his own capital",
+      "knowledge": "Remembers how the economy worked before the collapse: barter -> commodity money -> banknotes -> bank credit at interest -> in the last years before the collapse, even cryptocurrencies and tokenomics. The only person in town who understands this \u2014 everyone else grew up after the collapse.",
+      "resources": {
+        "food": 4.333333333333333,
+        "water": 4.666666666666667,
+        "debt_note": 0,
+        "gold": 150
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Bank"
+    },
+    {
+      "name": "Anna",
+      "role": "Worker",
+      "personality": "practical, values stability",
+      "knowledge": "Never saw the old financial world. Trusts only what can be eaten or drunk right now.",
+      "resources": {
+        "food": 9.333333333333334,
+        "water": 9.666666666666666,
+        "debt_note": 0,
+        "gold": 15
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Workshops"
+    },
+    {
+      "name": "Ivan",
+      "role": "Worker",
+      "personality": "risk-taking, drives a hard bargain",
+      "knowledge": "Has heard scattered stories about 'banks' and 'credit' from elders. Curious about new ideas if he sees a personal upside in them.",
+      "resources": {
+        "food": 7.333333333333334,
+        "water": 9.666666666666666,
+        "debt_note": 0,
+        "gold": 15
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Workshops"
+    },
+    {
+      "name": "Dmytro",
+      "role": "Worker",
+      "personality": "paranoid, quick to suspect hidden motives",
+      "knowledge": "Grew up hearing warnings that any centralized system always ends in betrayal. Assumes anyone offering an easy deal wants something bigger in return.",
+      "resources": {
+        "food": 9.333333333333334,
+        "water": 9.666666666666666,
+        "debt_note": 0,
+        "gold": 15
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Workshops"
+    },
+    {
+      "name": "Sofia",
+      "role": "Worker",
+      "personality": "a gossip who trades in information as much as goods",
+      "knowledge": "Doesn't have much to offer materially, but always knows who owes whom and who said what to whom. Treats information itself as a kind of currency.",
+      "resources": {
+        "food": 7.333333333333333,
+        "water": 7.666666666666667,
+        "debt_note": 0,
+        "gold": 10
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Workshops"
+    },
+    {
+      "name": "Taras",
+      "role": "Worker",
+      "personality": "nihilistic, quietly hoards for himself",
+      "knowledge": "Doesn't believe any system, old or new, will protect him in the end. Prefers to hoard quietly rather than join anyone's scheme.",
+      "resources": {
+        "food": 11.333333333333334,
+        "water": 11.666666666666666,
+        "debt_note": 0,
+        "gold": 20
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Workshops"
+    },
+    {
+      "name": "Olena",
+      "role": "Farmer",
+      "personality": "generous, but doesn't trust debt",
+      "knowledge": "Used to direct exchange. Considers any paper or promise a waste of time.",
+      "resources": {
+        "food": 36.333333333333336,
+        "water": 14.666666666666666,
+        "debt_note": 0,
+        "gold": 5
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Farms"
+    },
+    {
+      "name": "Petro",
+      "role": "Farmer",
+      "personality": "suspicious of the financier",
+      "knowledge": "Suspects the Financier is out to profit off others. Doesn't trust his offers without proof.",
+      "resources": {
+        "food": 34.333333333333336,
+        "water": 14.666666666666666,
+        "debt_note": 0,
+        "gold": 5
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Farms"
+    },
+    {
+      "name": "Yuri",
+      "role": "Farmer",
+      "personality": "a secretive loner",
+      "knowledge": "Keeps to himself and rarely reveals how much he actually has stored away. Prefers quiet, private deals over anything said in front of the whole town.",
+      "resources": {
+        "food": 29.333333333333332,
+        "water": 17.666666666666668,
+        "debt_note": 0,
+        "gold": 5
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Farms"
+    },
+    {
+      "name": "Kateryna",
+      "role": "Farmer",
+      "personality": "an alliance-builder who plays people, not just crops",
+      "knowledge": "Believes surviving the collapse is about who you know, not just what you have. Actively cultivates private alliances and isn't above a little manipulation.",
+      "resources": {
+        "food": 29.333333333333332,
+        "water": 17.666666666666668,
+        "debt_note": 0,
+        "gold": 8
+      },
+      "status": "ok",
+      "critical_streak": 0,
+      "location": "Farms"
+    }
+  ]
+}
