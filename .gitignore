@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+economy.db
+town_state.json
+.env
+.venv/
+logs/
+*.png
