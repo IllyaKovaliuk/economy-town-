@@ -587,33 +587,70 @@ dm_threads = build_dm_threads(tx)
 if not dm_threads:
     st.info("No private conversations yet.")
 else:
-    thread_labels = []
-    for pair, msgs in dm_threads:
-        a, b = pair
-        icon_a = ROLE_ICONS.get(agent_role_map.get(a), "🧑")
-        icon_b = ROLE_ICONS.get(agent_role_map.get(b), "🧑")
-        last_msg = msgs[-1]["private_message"]
-        preview = (last_msg[:44] + "…") if len(last_msg) > 44 else last_msg
-        thread_labels.append(f'{icon_a} {a} ↔ {icon_b} {b}  ·  {len(msgs)} msg  ·  "{preview}"')
-
-    chosen = st.selectbox(
-        "Conversation", range(len(thread_labels)), format_func=lambda i: thread_labels[i], key="dm_thread_select"
+    view_mode = st.radio(
+        "View", ["💬 Messenger", "📜 All messages (one feed)"],
+        horizontal=True, key="dm_view_mode", label_visibility="collapsed",
     )
-    pair, msgs = dm_threads[chosen]
-    left_agent = pair[0]
 
-    bubbles_html = ""
-    for row in msgs:
-        side = "left" if row["agent"] == left_agent else "right"
-        icon = ROLE_ICONS.get(agent_role_map.get(row["agent"]), "🧑")
-        bubbles_html += (
-            f'<div class="dm-bubble-row {side}">'
-            f'<div class="dm-bubble {side}">'
-            f'<div class="dm-meta">{icon} {row["agent"]} · round {row["round"]}</div>'
-            f'{row["private_message"]}'
-            f"</div></div>"
-        )
-    st.markdown(bubbles_html, unsafe_allow_html=True)
+    if view_mode == "💬 Messenger":
+        if "dm_selected_pair" not in st.session_state:
+            st.session_state.dm_selected_pair = 0
+        st.session_state.dm_selected_pair = min(st.session_state.dm_selected_pair, len(dm_threads) - 1)
+
+        list_col, thread_col = st.columns([1, 2])
+
+        with list_col:
+            st.markdown("**Conversations**")
+            for i, (pair, msgs) in enumerate(dm_threads):
+                a, b = pair
+                icon_a = ROLE_ICONS.get(agent_role_map.get(a), "🧑")
+                icon_b = ROLE_ICONS.get(agent_role_map.get(b), "🧑")
+                last_msg = msgs[-1]["private_message"]
+                preview = (last_msg[:38] + "…") if len(last_msg) > 38 else last_msg
+                is_selected = st.session_state.dm_selected_pair == i
+                if st.button(
+                    f"{icon_a} {a} ↔ {icon_b} {b}  ({len(msgs)})",
+                    key=f"dm_pair_btn_{i}", width="stretch",
+                    type="primary" if is_selected else "secondary",
+                ):
+                    st.session_state.dm_selected_pair = i
+                    st.rerun()
+                st.caption(f'"{preview}"')
+
+        chosen = st.session_state.dm_selected_pair
+        pair, msgs = dm_threads[chosen]
+        left_agent = pair[0]
+
+        with thread_col:
+            st.markdown(f"**{pair[0]} ↔ {pair[1]}**")
+            bubbles_html = ""
+            for row in msgs:
+                side = "left" if row["agent"] == left_agent else "right"
+                icon = ROLE_ICONS.get(agent_role_map.get(row["agent"]), "🧑")
+                phase_label, day_number = phase_and_day(row["round"])
+                bubbles_html += (
+                    f'<div class="dm-bubble-row {side}">'
+                    f'<div class="dm-bubble {side}">'
+                    f'<div class="dm-meta">{icon} {row["agent"]} · Day {day_number}, {phase_label}</div>'
+                    f'{row["private_message"]}'
+                    f"</div></div>"
+                )
+            st.markdown(bubbles_html, unsafe_allow_html=True)
+
+    else:
+        all_dms = tx[tx["private_message"].notna() & (tx["private_message"] != "") & tx["dm_target"].notna()]
+        for _, row in all_dms.iloc[::-1].iterrows():
+            icon = ROLE_ICONS.get(row["role"], "🧑")
+            target_icon = ROLE_ICONS.get(agent_role_map.get(row["dm_target"]), "🧑")
+            phase_label, day_number = phase_and_day(row["round"])
+            st.markdown(
+                event_card_html(
+                    f"{icon} <b>{row['agent']}</b> → {target_icon} <b>{row['dm_target']}</b> "
+                    f"(Day {day_number}, {phase_label}): \"{row['private_message']}\"",
+                    "#9b59b6", "rgba(155, 89, 182, 0.10)",
+                ),
+                unsafe_allow_html=True,
+            )
 
 st.divider()
 
