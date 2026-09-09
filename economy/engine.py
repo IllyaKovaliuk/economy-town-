@@ -3,15 +3,26 @@
 from .agents import default_roster
 from .config import (
     CHRONICLE_LIMIT,
+    COLLATERAL_RATIO,
     DAY_PHASES,
     DEATH_THRESHOLD,
+    LIQUIDATION_THRESHOLD,
     OWN_HISTORY_LIMIT,
     PRIVATE_HISTORY_LIMIT,
     ROUNDS,
     SURVIVAL_NEEDS,
 )
 from .crisis import apply_crisis, maybe_trigger_crisis
-from .ledger import init_db, save_agent_state, save_crisis, save_death, save_prices, save_transaction
+from .ledger import (
+    close_debt_position,
+    init_db,
+    save_agent_state,
+    save_crisis,
+    save_death,
+    save_debt_position,
+    save_prices,
+    save_transaction,
+)
 from .llm import get_agent_action
 from .market import Market
 from .state import load_state, save_state
@@ -63,15 +74,19 @@ PUBLIC_STANCES = {"endorse", "denounce", "vote_leader"}
 STANCE_VERBS = {"endorse": "publicly endorsed", "denounce": "publicly denounced", "vote_leader": "voted for"}
 
 
-def _apply_action(agent, action, agents_by_name, boycotts: set) -> bool:
-    """Applies the resource effect of an action. Returns True if it was blocked by
-    an active boycott between the two agents (trade never happens between them again)."""
+def _apply_action(agent, action, agents_by_name, boycotts: set, market) -> tuple[bool, dict | None]:
+    """Applies the resource effect of an action.
+
+    Returns (blocked, new_position): `blocked` is True if it was stopped by an active
+    boycott between the two agents; `new_position` describes a freshly opened
+    collateralized debt position (issue_debt), or None for every other action.
+    """
     target = agents_by_name.get(action.target_agent)
     if action.action == "do_nothing" or target is None or not target.is_alive():
-        return False
+        return False, None
 
     if frozenset((agent.name, target.name)) in boycotts:
-        return True
+        return True, None
 
     if action.action == "trade":
         available = agent.resources.get(action.resource, 0)
@@ -80,13 +95,29 @@ def _apply_action(agent, action, agents_by_name, boycotts: set) -> bool:
         target.resources[action.resource] = target.resources.get(action.resource, 0) + amount
 
     elif action.action == "issue_debt":
-        agent.resources["debt_note"] = agent.resources.get("debt_note", 0) - action.amount
-        target.resources["debt_note"] = target.resources.get("debt_note", 0) + action.amount
+        # Collateralized loan (DeFi-style): the borrower (agent) locks gold worth
+        # COLLATERAL_RATIO times the debt's market value. The requested amount is
+        # capped by how much gold they actually have to back it.
+        debt_price = market.prices.get("debt_note", 1.0)
+        available_gold = agent.resources.get("gold", 0)
+        max_principal = available_gold / (debt_price * COLLATERAL_RATIO) if debt_price > 0 else 0
+        principal = min(action.amount, max(max_principal, 0))
+        if principal <= 0:
+            return False, None
+
+        collateral = principal * debt_price * COLLATERAL_RATIO
+        agent.resources["gold"] = available_gold - collateral
+        agent.resources["debt_note"] = agent.resources.get("debt_note", 0) - principal
+        target.resources["debt_note"] = target.resources.get("debt_note", 0) + principal
+        return False, {
+            "borrower": agent.name, "lender": target.name,
+            "principal": principal, "collateral_gold": collateral,
+        }
 
     elif action.action == "buy_futures":
         agent.resources[action.resource] = agent.resources.get(action.resource, 0) + action.amount
 
-    return False
+    return False, None
 
 
 class SimulationEngine:
@@ -108,12 +139,20 @@ class SimulationEngine:
 
         self.agents_by_name = {a.name: a for a in self.agents}
         self.transactions: list[dict] = self._load_past_transactions()
+        self.open_positions: list[dict] = self._load_open_positions()
 
     def _load_past_transactions(self) -> list[dict]:
         """Loads all prior rounds from economy.db so memory, alliances, and boycotts
         stay continuous across separate runs, not just within a single one."""
         cur = self.conn.execute(f"SELECT {', '.join(TX_COLUMNS)} FROM transactions ORDER BY id")
         return [dict(zip(TX_COLUMNS, row)) for row in cur.fetchall()]
+
+    def _load_open_positions(self) -> list[dict]:
+        """Loads still-open collateralized debt positions so liquidation checks and
+        prompt context stay continuous across separate runs."""
+        cols = ["id", "borrower", "lender", "principal", "collateral_gold"]
+        cur = self.conn.execute(f"SELECT {', '.join(cols)} FROM debt_positions WHERE status = 'open'")
+        return [dict(zip(cols, row)) for row in cur.fetchall()]
 
     def run(self) -> list[dict]:
         last_round_run = self.start_round
@@ -142,6 +181,8 @@ class SimulationEngine:
             self.market.update(round_transactions)
             save_prices(self.conn, round_num, self.market.snapshot())
             print(f"💰 Prices after this round: {self.market.snapshot()}")
+
+            self._check_liquidations(round_num)
 
             for agent in self.agents:
                 save_agent_state(self.conn, round_num, agent)
@@ -210,7 +251,59 @@ class SimulationEngine:
             if agent.name in pair:
                 other = next(iter(pair - {agent.name}))
                 lines.append(f"There is an active boycott between you and {other} — trades between you will fail.")
+        lines.extend(self._debt_health_for(agent))
         return lines
+
+    def _debt_health_for(self, agent) -> list[str]:
+        """Lines describing this agent's own open collateralized positions — as
+        borrower (at risk of liquidation) or as lender (exposed to the borrower)."""
+        debt_price = self.market.prices.get("debt_note", 1.0)
+        lines = []
+        for pos in self.open_positions:
+            debt_value = pos["principal"] * debt_price
+            ratio = pos["collateral_gold"] / debt_value if debt_value > 0 else float("inf")
+            if pos["borrower"] == agent.name:
+                lines.append(
+                    f"You owe {pos['principal']:.1f} debt_note to {pos['lender']}, collateralized at "
+                    f"{ratio:.2f}x (liquidated below {LIQUIDATION_THRESHOLD}x)."
+                )
+            elif pos["lender"] == agent.name:
+                lines.append(
+                    f"{pos['borrower']} owes you {pos['principal']:.1f} debt_note, "
+                    f"backed by {pos['collateral_gold']:.1f}g collateral (currently {ratio:.2f}x)."
+                )
+        return lines
+
+    def _check_liquidations(self, round_num) -> None:
+        """DeFi-style liquidation: if debt_note's market value rises enough relative to
+        the locked collateral, the position gets force-closed — collateral is seized to
+        repay the lender, any leftover goes back to the borrower."""
+        debt_price = self.market.prices.get("debt_note", 1.0)
+        still_open = []
+        for pos in self.open_positions:
+            debt_value = pos["principal"] * debt_price
+            ratio = pos["collateral_gold"] / debt_value if debt_value > 0 else float("inf")
+            if ratio >= LIQUIDATION_THRESHOLD:
+                still_open.append(pos)
+                continue
+
+            borrower = self.agents_by_name.get(pos["borrower"])
+            lender = self.agents_by_name.get(pos["lender"])
+            seized = min(pos["collateral_gold"], debt_value)
+            leftover = pos["collateral_gold"] - seized
+            if lender:
+                lender.resources["gold"] = lender.resources.get("gold", 0) + seized
+                lender.resources["debt_note"] = lender.resources.get("debt_note", 0) - pos["principal"]
+            if borrower:
+                borrower.resources["gold"] = borrower.resources.get("gold", 0) + leftover
+                borrower.resources["debt_note"] = borrower.resources.get("debt_note", 0) + pos["principal"]
+
+            close_debt_position(self.conn, pos["id"], round_num, "liquidated")
+            print(
+                f"⚡ LIQUIDATED: {pos['borrower']}'s {pos['principal']:.1f} debt_note position "
+                f"to {pos['lender']} (ratio {ratio:.2f}x fell below {LIQUIDATION_THRESHOLD}x)"
+            )
+        self.open_positions = still_open
 
     def _planning_and_trading_phase(self, round_num, phase_label, day_number, crisis) -> list[dict]:
         round_transactions = []
@@ -225,8 +318,13 @@ class SimulationEngine:
                 self._own_history(agent), self._public_chronicle(),
                 self._private_context(agent), self._social_context(agent, boycotts),
             )
-            blocked = _apply_action(agent, action, self.agents_by_name, boycotts)
+            blocked, new_position = _apply_action(agent, action, self.agents_by_name, boycotts, self.market)
             agent.location = action.location
+
+            if new_position:
+                position_id = save_debt_position(self.conn, round_num, **new_position)
+                new_position["id"] = position_id
+                self.open_positions.append(new_position)
 
             record = {
                 "round": round_num, "agent": agent.name, "role": agent.role.value,
@@ -242,6 +340,8 @@ class SimulationEngine:
                 f"[{agent.name}/{agent.role.value} @ {action.location}] {action.action} -> {action.target_agent} | "
                 f"{action.resource} x{action.amount}{price_note}{blocked_note} — {action.reasoning}"
             )
+            if new_position:
+                print(f"   🔒 Collateral locked: {new_position['collateral_gold']:.1f}g")
             if action.public_message:
                 print(f'   💬 {agent.name}: "{action.public_message}"')
             if action.private_message and action.dm_target:

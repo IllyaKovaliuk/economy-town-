@@ -15,7 +15,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from economy.config import DB_PATH
+from economy.config import COLLATERAL_RATIO, DB_PATH, LIQUIDATION_THRESHOLD
 from economy.engine import phase_and_day
 
 st.set_page_config(page_title="Economy Town", page_icon="🏚️", layout="wide")
@@ -421,6 +421,22 @@ def build_dm_threads(tx: pd.DataFrame) -> list[tuple[tuple[str, str], pd.DataFra
 st.markdown(CARD_CSS, unsafe_allow_html=True)
 
 
+DEBT_POSITION_COLUMNS = [
+    "id", "round_opened", "borrower", "lender", "principal",
+    "collateral_gold", "status", "round_closed", "timestamp",
+]
+
+
+def _safe_read_sql(conn, query: str, columns: list[str]) -> pd.DataFrame:
+    """Reads a table that might not exist yet (e.g. an economy.db from before this
+    feature was added) — returns an empty, correctly-shaped DataFrame instead of
+    crashing the whole dashboard on an OperationalError."""
+    try:
+        return pd.read_sql_query(query, conn)
+    except pd.io.sql.DatabaseError:
+        return pd.DataFrame(columns=columns)
+
+
 @st.cache_data(ttl=5)
 def load_tables(db_path: str):
     if not Path(db_path).exists():
@@ -432,6 +448,9 @@ def load_tables(db_path: str):
         "prices": pd.read_sql_query("SELECT * FROM prices ORDER BY id", conn),
         "crisis_events": pd.read_sql_query("SELECT * FROM crisis_events ORDER BY id", conn),
         "deaths": pd.read_sql_query("SELECT * FROM deaths ORDER BY id", conn),
+        "debt_positions": _safe_read_sql(
+            conn, "SELECT * FROM debt_positions ORDER BY id", DEBT_POSITION_COLUMNS
+        ),
     }
     conn.close()
     return tables
@@ -446,8 +465,9 @@ if data is None or data["transactions"].empty:
     st.warning("economy.db has no data yet. Run `python3 main.py` to generate the first run.")
     st.stop()
 
-tx, states, prices, crises, deaths = (
-    data["transactions"], data["agent_states"], data["prices"], data["crisis_events"], data["deaths"]
+tx, states, prices, crises, deaths, debt_positions = (
+    data["transactions"], data["agent_states"], data["prices"], data["crisis_events"],
+    data["deaths"], data["debt_positions"],
 )
 
 status_line = live_status_line(tx)
@@ -642,6 +662,17 @@ with right:
 
 st.divider()
 st.subheader("📊 Economic analytics")
+with st.container(border=True):
+    st.markdown("**🔬 Research question**")
+    st.caption(
+        "In a closed-loop economy with no central bank, does a self-appointed financier's "
+        "credit issuance organically build the trust infrastructure of a banking system — "
+        "or does it just concentrate risk? Specifically: (1) does credit/wealth inequality "
+        "(Gini) rise as lending deepens; (2) does debt_note behave like an endogenous "
+        "stablecoin — holding a stable peg, or drifting as trust in the issuer shifts; and "
+        "(3) once debt is collateralized, do liquidation cascades emerge the way they do in "
+        "DeFi lending markets (Aave/Compound) during price shocks?"
+    )
 st.caption("Derived metrics for the analyst view: inequality, inflation, and the credit market.")
 
 price_pivot_all = prices.pivot(index="round", columns="resource", values="price")
@@ -678,6 +709,39 @@ with a3:
         st.caption(
             f"Top creditor: **{top_creditor['agent']}** ({top_creditor['debt_note']:+.1f}) · "
             f"Top debtor: **{top_debtor['agent']}** ({top_debtor['debt_note']:+.1f})"
+        )
+
+st.subheader("🏦 Collateralized lending (DeFi-style)")
+st.caption(
+    f"Borrowers lock {COLLATERAL_RATIO}x the loan's value in gold as collateral; a position "
+    f"is force-liquidated once that ratio falls below {LIQUIDATION_THRESHOLD}x — the same "
+    "mechanic Aave/Compound use."
+)
+open_positions = debt_positions[debt_positions["status"] == "open"].copy()
+if open_positions.empty:
+    st.info("No open collateralized positions yet.")
+else:
+    latest_debt_price = price_pivot_all["debt_note"].iloc[-1] if "debt_note" in price_pivot_all else 1.0
+    open_positions["debt_value"] = open_positions["principal"] * latest_debt_price
+    open_positions["ratio"] = (open_positions["collateral_gold"] / open_positions["debt_value"]).round(2)
+    open_positions["health"] = open_positions["ratio"].apply(
+        lambda r: "🔴 at risk" if r < LIQUIDATION_THRESHOLD * 1.1 else "🟢 healthy"
+    )
+    st.dataframe(
+        open_positions[["borrower", "lender", "principal", "collateral_gold", "ratio", "health"]]
+        .rename(columns={"principal": "debt (debt_note)", "collateral_gold": "collateral (gold)"})
+        .round(2),
+        width="stretch", hide_index=True,
+    )
+
+liquidated = debt_positions[debt_positions["status"] == "liquidated"]
+if not liquidated.empty:
+    st.markdown("**⚡ Liquidation history**")
+    for _, row in liquidated.iloc[::-1].iterrows():
+        st.markdown(
+            f"- Round {row['round_closed']}: **{row['borrower']}**'s "
+            f"{row['principal']:.1f} debt_note position to **{row['lender']}** was liquidated "
+            f"(collateral seized: {row['collateral_gold']:.1f}g)"
         )
 
 st.divider()

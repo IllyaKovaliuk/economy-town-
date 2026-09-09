@@ -55,3 +55,11 @@ DEATH_THRESHOLD = 2 * len(DAY_PHASES)
 OWN_HISTORY_LIMIT = 4
 CHRONICLE_LIMIT = 10
 PRIVATE_HISTORY_LIMIT = 6
+
+# Collateralized lending (DeFi-style, mirrors Aave/Compound): issuing debt_note requires
+# locking gold worth COLLATERAL_RATIO times the debt's current market value. If the
+# debt's value rises relative to the locked collateral and the ratio falls below
+# LIQUIDATION_THRESHOLD, the position is force-liquidated: collateral is seized to repay
+# the lender, any leftover returns to the borrower.
+COLLATERAL_RATIO = 1.5
+LIQUIDATION_THRESHOLD = 1.2

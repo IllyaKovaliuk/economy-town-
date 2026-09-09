@@ -64,6 +64,18 @@ CREATE TABLE IF NOT EXISTS crisis_events (
     affects TEXT,
     timestamp TEXT
 );
+
+CREATE TABLE IF NOT EXISTS debt_positions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    round_opened INTEGER NOT NULL,
+    borrower TEXT NOT NULL,
+    lender TEXT NOT NULL,
+    principal REAL NOT NULL,
+    collateral_gold REAL NOT NULL,
+    status TEXT NOT NULL DEFAULT 'open',
+    round_closed INTEGER,
+    timestamp TEXT
+);
 """
 
 
@@ -127,6 +139,27 @@ def save_prices(conn: sqlite3.Connection, round_num: int, prices: dict) -> None:
             "INSERT INTO prices (round, resource, price, timestamp) VALUES (?, ?, ?, ?)",
             (round_num, resource, price, _now()),
         )
+    conn.commit()
+
+
+def save_debt_position(
+    conn: sqlite3.Connection, round_num: int, borrower: str, lender: str,
+    principal: float, collateral_gold: float,
+) -> int:
+    cur = conn.execute(
+        """INSERT INTO debt_positions (round_opened, borrower, lender, principal, collateral_gold, status, timestamp)
+           VALUES (?, ?, ?, ?, ?, 'open', ?)""",
+        (round_num, borrower, lender, principal, collateral_gold, _now()),
+    )
+    conn.commit()
+    return cur.lastrowid
+
+
+def close_debt_position(conn: sqlite3.Connection, position_id: int, round_num: int, status: str) -> None:
+    conn.execute(
+        "UPDATE debt_positions SET status = ?, round_closed = ? WHERE id = ?",
+        (status, round_num, position_id),
+    )
     conn.commit()
 
 

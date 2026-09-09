@@ -5,7 +5,7 @@ variable (see economy/config.py). Default is Gemini (free tier).
 """
 
 from .agents import Role
-from .config import MODEL, PROVIDER
+from .config import COLLATERAL_RATIO, LIQUIDATION_THRESHOLD, MODEL, PROVIDER
 from .models import AgentAction
 
 _openai_client = None
@@ -104,7 +104,11 @@ def build_prompt(
         f"Living townspeople and where they currently are:\n{others_desc}\n\n"
         "Decide where you are this time of day via location, and choose ONE action: "
         "trade (exchange resources at market or your own price), "
-        "issue_debt (issue a debt note — typically the Financier's role), "
+        "issue_debt (a collateralized loan, like DeFi lending — you lock gold worth "
+        f"{COLLATERAL_RATIO}x the debt's value as collateral; if the debt's market value "
+        f"rises too much relative to your collateral, dropping below {LIQUIDATION_THRESHOLD}x, "
+        "it gets force-liquidated and you lose the collateral — typically the Financier's role, "
+        "but anyone with gold to spare can lend), "
         "buy_futures (buy a futures contract on a resource — typically the Financier's role), "
         "or do_nothing.\n"
         "Workers sell labor and buy food/water. Farmers sell food and water. "
