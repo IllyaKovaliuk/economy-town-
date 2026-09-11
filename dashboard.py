@@ -782,6 +782,28 @@ if not liquidated.empty:
         )
 
 st.divider()
+st.subheader("🧠 Thinking log")
+st.caption(
+    "The model's full chain-of-thought behind each decision (Gemini only, thinking mode) — "
+    "not just the short `reasoning` summary. One flat, filterable list."
+)
+thoughts_df = tx[tx["thought"].notna() & (tx["thought"] != "")] if "thought" in tx.columns else tx.iloc[0:0]
+if thoughts_df.empty:
+    st.info("No captured thoughts yet — this only works when running on the Gemini provider.")
+else:
+    thought_agents = st.multiselect(
+        "Filter by agent", sorted(thoughts_df["agent"].unique()),
+        default=sorted(thoughts_df["agent"].unique()), key="thought_agent_filter",
+    )
+    filtered_thoughts = thoughts_df[thoughts_df["agent"].isin(thought_agents)]
+    for _, row in filtered_thoughts.iloc[::-1].iterrows():
+        phase_label, day_number = phase_and_day(row["round"])
+        icon = ROLE_ICONS.get(agent_role_map.get(row["agent"]), "🧑")
+        summary = (row["reasoning"] or "")[:70]
+        with st.expander(f'{icon} {row["agent"]} · Day {day_number}, {phase_label} — "{summary}…"'):
+            st.text(row["thought"])
+
+st.divider()
 st.subheader("📖 Story feed")
 st.caption("A readable, phase-by-phase recap of everything that happened — script material for posts.")
 for rnd in sorted(tx["round"].unique(), reverse=True):
