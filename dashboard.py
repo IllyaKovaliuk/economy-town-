@@ -327,14 +327,19 @@ def build_town_map(tx_day: pd.DataFrame, agent_role_map: dict, status_by_agent: 
         a = row["agent"]
         if a not in positions:
             continue
+        if row.get("blocked"):
+            continue  # nothing actually happened — don't draw a misleading arrow
         x0, y0 = positions[a]
         target = row.get("target_agent")
-        if row["action"] != "do_nothing" and target in positions:
+        is_conflict = row["action"] in ("raid", "decree")
+        if row["action"] not in ("do_nothing",) and target in positions:
             x1, y1 = positions[target]
             fig.add_annotation(
                 x=x1, y=y1, ax=x0, ay=y0, xref="x", yref="y", axref="x", ayref="y",
-                showarrow=True, arrowhead=3, arrowsize=1.1, arrowwidth=2,
-                arrowcolor="rgba(91, 141, 239, 0.75)", standoff=18, startstandoff=18,
+                showarrow=True, arrowhead=3, arrowsize=1.3 if is_conflict else 1.1,
+                arrowwidth=3 if is_conflict else 2,
+                arrowcolor="rgba(231, 76, 60, 0.85)" if is_conflict else "rgba(91, 141, 239, 0.75)",
+                standoff=18, startstandoff=18,
             )
         dm_target = row.get("dm_target")
         if row.get("private_message") and dm_target in positions:
@@ -383,8 +388,16 @@ def format_event(row) -> str:
         line = f"{row['agent']} issued a debt note worth {row['amount']} to {row['target_agent']}."
     elif action == "buy_futures":
         line = f"{row['agent']} bought a futures contract on {row['amount']} {row['resource']}."
+    elif action == "raid":
+        line = f"⚔️ {row['agent']} RAIDED {row['target_agent']} and stole {row['amount']} {row['resource']}!"
+    elif action == "decree":
+        line = f"👑 {row['agent']} DECREED the seizure of {row['amount']} {row['resource']} from {row['target_agent']}!"
     else:
         line = f"{row['agent']} performed {action}."
+
+    if row.get("blocked"):
+        reason = "no mandate — not the elected leader" if action == "decree" else "blocked by an active boycott"
+        line += f" *(FAILED — {reason})*"
 
     if row.get("public_message"):
         line += f' 📣 announced: "{row["public_message"]}"'
@@ -572,6 +585,27 @@ with p2:
                 ),
                 unsafe_allow_html=True,
             )
+
+st.subheader("⚔️ Conflict log")
+st.caption("raid = anyone can attempt it. decree = only works for the currently elected leader.")
+conflicts = tx[tx["action"].isin(["raid", "decree"])]
+if conflicts.empty:
+    st.info("No raids or decrees yet.")
+else:
+    for _, row in conflicts.iloc[::-1].iterrows():
+        phase_label, day_number = phase_and_day(row["round"])
+        if row.get("blocked"):
+            reason = "not the elected leader" if row["action"] == "decree" else "blocked"
+            text = f"🚫 Day {day_number}, {phase_label}: <b>{row['agent']}</b> tried to {row['action']} <b>{row['target_agent']}</b> — FAILED ({reason})"
+            accent, tint = "#7f8c8d", "rgba(127, 140, 141, 0.10)"
+        else:
+            verb = "RAIDED" if row["action"] == "raid" else "DECREED against"
+            text = (
+                f"⚔️ Day {day_number}, {phase_label}: <b>{row['agent']}</b> {verb} "
+                f"<b>{row['target_agent']}</b> — took {row['amount']} {row['resource']}"
+            )
+            accent, tint = "#e74c3c", "rgba(231, 76, 60, 0.10)"
+        st.markdown(event_card_html(text, accent, tint), unsafe_allow_html=True)
 
 st.divider()
 

@@ -6,8 +6,13 @@ from pydantic import BaseModel, Field
 
 
 class AgentAction(BaseModel):
-    action: Literal["trade", "issue_debt", "buy_futures", "do_nothing"] = Field(
-        description="The type of action the agent takes"
+    action: Literal["trade", "issue_debt", "buy_futures", "raid", "decree", "do_nothing"] = Field(
+        description=(
+            "The type of action the agent takes. 'raid' forcibly takes a resource from "
+            "target_agent regardless of consent — everyone in town will hear about it. "
+            "'decree' does the same but is only effective if you are the currently elected "
+            "town leader (a no-op otherwise) — a legitimate use of power, not theft."
+        )
     )
     target_agent: str = Field(
         description="The name of the agent this action targets (or 'none' if no target is needed)"

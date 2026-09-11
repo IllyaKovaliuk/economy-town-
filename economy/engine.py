@@ -30,7 +30,7 @@ from .state import load_state, save_state
 TX_COLUMNS = [
     "round", "agent", "role", "action", "target_agent", "resource", "amount", "price_per_unit",
     "reasoning", "public_message", "dm_target", "private_message", "stance", "stance_target",
-    "location",
+    "location", "blocked",
 ]
 
 
@@ -74,19 +74,33 @@ PUBLIC_STANCES = {"endorse", "denounce", "vote_leader"}
 STANCE_VERBS = {"endorse": "publicly endorsed", "denounce": "publicly denounced", "vote_leader": "voted for"}
 
 
-def _apply_action(agent, action, agents_by_name, boycotts: set, market) -> tuple[bool, dict | None]:
+def _apply_action(
+    agent, action, agents_by_name, boycotts: set, market, current_leader: str | None,
+) -> tuple[bool, dict | None]:
     """Applies the resource effect of an action.
 
     Returns (blocked, new_position): `blocked` is True if it was stopped by an active
-    boycott between the two agents; `new_position` describes a freshly opened
-    collateralized debt position (issue_debt), or None for every other action.
+    boycott (cooperative actions only — force ignores boycotts) or by 'decree' being
+    used by someone who isn't the elected leader; `new_position` describes a freshly
+    opened collateralized debt position (issue_debt), or None for every other action.
     """
     target = agents_by_name.get(action.target_agent)
     if action.action == "do_nothing" or target is None or not target.is_alive():
         return False, None
 
-    if frozenset((agent.name, target.name)) in boycotts:
+    coercive = action.action in ("raid", "decree")
+    if not coercive and frozenset((agent.name, target.name)) in boycotts:
         return True, None
+
+    if action.action == "decree" and agent.name != current_leader:
+        return True, None  # no mandate — the town doesn't recognize this as legitimate
+
+    if action.action in ("raid", "decree"):
+        available = target.resources.get(action.resource, 0)
+        seized = min(action.amount, max(available, 0))
+        target.resources[action.resource] = available - seized
+        agent.resources[action.resource] = agent.resources.get(action.resource, 0) + seized
+        return False, None
 
     if action.action == "trade":
         available = agent.resources.get(action.resource, 0)
@@ -193,18 +207,27 @@ class SimulationEngine:
 
     def _own_history(self, agent) -> list[str]:
         mine = [t for t in self.transactions if t["agent"] == agent.name]
-        return [
-            f"Round {t['round']}: {t['action']} -> {t['target_agent']} "
-            f"({t['resource']} x{t['amount']}) — {t['reasoning']}"
-            for t in mine[-OWN_HISTORY_LIMIT:]
-        ]
+        lines = []
+        for t in mine[-OWN_HISTORY_LIMIT:]:
+            failed_note = " [this FAILED — had no effect]" if t.get("blocked") else ""
+            lines.append(
+                f"Round {t['round']}: {t['action']} -> {t['target_agent']} "
+                f"({t['resource']} x{t['amount']}){failed_note} — {t['reasoning']}"
+            )
+        return lines
 
     def _public_chronicle(self) -> list[str]:
-        spoken = [t for t in self.transactions if t.get("public_message")]
-        return [
-            f"Round {t['round']}, {t['agent']} ({t['role']}): {t['public_message']}"
-            for t in spoken[-CHRONICLE_LIMIT:]
-        ]
+        lines = []
+        for t in self.transactions:
+            if t.get("public_message"):
+                lines.append(f"Round {t['round']}, {t['agent']} ({t['role']}): {t['public_message']}")
+            if t.get("action") in ("raid", "decree") and t.get("target_agent") and not t.get("blocked"):
+                verb = "RAIDED" if t["action"] == "raid" else "issued a DECREE against"
+                lines.append(
+                    f"Round {t['round']}, {t['agent']} ({t['role']}) {verb} {t['target_agent']} "
+                    f"and took {t['amount']} {t['resource']} — the whole town knows about it."
+                )
+        return lines[-CHRONICLE_LIMIT:]
 
     def _private_context(self, agent) -> list[str]:
         mine = [
@@ -242,7 +265,18 @@ class SimulationEngine:
             if t.get("stance") == "boycott" and t.get("stance_target")
         }
 
-    def _social_context(self, agent, boycotts: set) -> list[str]:
+    def _current_leader(self) -> str | None:
+        """Whoever has the most cumulative vote_leader stances so far. None if nobody
+        has ever voted — in which case 'decree' has no legitimate wielder yet."""
+        votes = [t for t in self.transactions if t.get("stance") == "vote_leader" and t.get("stance_target")]
+        if not votes:
+            return None
+        tally: dict[str, int] = {}
+        for t in votes:
+            tally[t["stance_target"]] = tally.get(t["stance_target"], 0) + 1
+        return max(tally, key=tally.get)
+
+    def _social_context(self, agent, boycotts: set, current_leader: str | None) -> list[str]:
         lines = list(self._political_events())
         allies = self._alliances_for(agent)
         if allies:
@@ -251,6 +285,19 @@ class SimulationEngine:
             if agent.name in pair:
                 other = next(iter(pair - {agent.name}))
                 lines.append(f"There is an active boycott between you and {other} — trades between you will fail.")
+        if current_leader == agent.name:
+            lines.append(
+                "You are the currently elected town leader — you alone can use 'decree' to "
+                "legitimately seize a resource from anyone. Ordinary people can still denounce, "
+                "boycott, or vote someone else in if they think you're abusing it."
+            )
+        elif current_leader:
+            lines.append(
+                f"{current_leader} is the currently elected town leader and can 'decree' to seize "
+                "resources from anyone, including you. There is no leader if you'd rather vote for someone else."
+            )
+        else:
+            lines.append("No one currently holds enough votes to be recognized as town leader.")
         lines.extend(self._debt_health_for(agent))
         return lines
 
@@ -308,6 +355,7 @@ class SimulationEngine:
     def _planning_and_trading_phase(self, round_num, phase_label, day_number, crisis) -> list[dict]:
         round_transactions = []
         boycotts = self._active_boycotts()
+        current_leader = self._current_leader()
         for agent in self.agents:
             if not agent.is_alive():
                 continue
@@ -316,9 +364,11 @@ class SimulationEngine:
             action, thought = get_agent_action(
                 agent, round_num, phase_label, day_number, others, self.market.snapshot(), crisis,
                 self._own_history(agent), self._public_chronicle(),
-                self._private_context(agent), self._social_context(agent, boycotts),
+                self._private_context(agent), self._social_context(agent, boycotts, current_leader),
             )
-            blocked, new_position = _apply_action(agent, action, self.agents_by_name, boycotts, self.market)
+            blocked, new_position = _apply_action(
+                agent, action, self.agents_by_name, boycotts, self.market, current_leader
+            )
             agent.location = action.location
 
             if new_position:
@@ -328,14 +378,19 @@ class SimulationEngine:
 
             record = {
                 "round": round_num, "agent": agent.name, "role": agent.role.value,
-                **action.model_dump(), "thought": thought,
+                **action.model_dump(), "thought": thought, "blocked": blocked,
             }
             self.transactions.append(record)
             round_transactions.append(record)
-            save_transaction(self.conn, round_num, agent, action, thought)
+            save_transaction(self.conn, round_num, agent, action, thought, blocked)
 
             price_note = f" @ {action.price_per_unit}g" if action.price_per_unit else ""
-            blocked_note = " [BLOCKED by boycott]" if blocked else ""
+            if blocked and action.action == "decree":
+                blocked_note = " [BLOCKED — not the elected leader]"
+            elif blocked:
+                blocked_note = " [BLOCKED by boycott]"
+            else:
+                blocked_note = ""
             print(
                 f"[{agent.name}/{agent.role.value} @ {action.location}] {action.action} -> {action.target_agent} | "
                 f"{action.resource} x{action.amount}{price_note}{blocked_note} — {action.reasoning}"
