@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     stance TEXT,
     stance_target TEXT,
     location TEXT,
+    thought TEXT,
     timestamp TEXT
 );
 
@@ -91,6 +92,7 @@ def init_db(path=DB_PATH) -> sqlite3.Connection:
     conn = sqlite3.connect(path)
     conn.executescript(SCHEMA)
     _ensure_column(conn, "transactions", "location", "TEXT")
+    _ensure_column(conn, "transactions", "thought", "TEXT")
     conn.commit()
     return conn
 
@@ -99,18 +101,18 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def save_transaction(conn: sqlite3.Connection, round_num: int, agent, action) -> None:
+def save_transaction(conn: sqlite3.Connection, round_num: int, agent, action, thought: str | None = None) -> None:
     conn.execute(
         """INSERT INTO transactions
            (round, agent, role, action, target_agent, resource, amount, price_per_unit,
             reasoning, public_message, dm_target, private_message, stance, stance_target,
-            location, timestamp)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            location, thought, timestamp)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             round_num, agent.name, agent.role.value, action.action, action.target_agent,
             action.resource, action.amount, action.price_per_unit, action.reasoning,
             action.public_message, action.dm_target, action.private_message,
-            action.stance, action.stance_target, action.location, _now(),
+            action.stance, action.stance_target, action.location, thought, _now(),
         ),
     )
     conn.commit()

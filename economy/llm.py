@@ -131,7 +131,10 @@ def build_prompt(
     )
 
 
-def _call_openai(prompt: str, system_prompt: str) -> AgentAction:
+THINKING_LEVEL = "medium"  # Gemini-only: none visible at "low", ~584 thinking tokens at "medium"
+
+
+def _call_openai(prompt: str, system_prompt: str) -> tuple[AgentAction, None]:
     completion = _get_openai_client().beta.chat.completions.parse(
         model=MODEL,
         messages=[
@@ -140,10 +143,11 @@ def _call_openai(prompt: str, system_prompt: str) -> AgentAction:
         ],
         response_format=AgentAction,
     )
-    return completion.choices[0].message.parsed
+    # gpt-4o-mini isn't a reasoning model — no chain-of-thought to capture here.
+    return completion.choices[0].message.parsed, None
 
 
-def _call_gemini(prompt: str, system_prompt: str) -> AgentAction:
+def _call_gemini(prompt: str, system_prompt: str) -> tuple[AgentAction, str | None]:
     response = _get_gemini_client().models.generate_content(
         model=MODEL,
         contents=prompt,
@@ -151,15 +155,24 @@ def _call_gemini(prompt: str, system_prompt: str) -> AgentAction:
             "system_instruction": system_prompt,
             "response_mime_type": "application/json",
             "response_schema": AgentAction,
+            "thinking_config": {"include_thoughts": True, "thinking_level": THINKING_LEVEL},
         },
     )
-    return response.parsed
+    thought_parts = [
+        part.text for part in response.candidates[0].content.parts
+        if getattr(part, "thought", False) and part.text
+    ]
+    thought = "\n".join(thought_parts) if thought_parts else None
+    return response.parsed, thought
 
 
 def get_agent_action(
     agent, round_num, phase_label, day_number, others, prices, crisis,
     own_history, chronicle, private_context, social_context,
-) -> AgentAction:
+) -> tuple[AgentAction, str | None]:
+    """Returns (action, thought) — thought is the model's raw chain-of-thought (Gemini
+    only, None for OpenAI), kept separate from the short `reasoning` field in the
+    structured action so it can be stored/shown without feeding back into future prompts."""
     prompt = build_prompt(
         agent, round_num, phase_label, day_number, others, prices, crisis,
         own_history, chronicle, private_context, social_context,

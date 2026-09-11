@@ -313,7 +313,7 @@ class SimulationEngine:
                 continue
 
             others = [a for a in self.agents if a.name != agent.name and a.is_alive()]
-            action = get_agent_action(
+            action, thought = get_agent_action(
                 agent, round_num, phase_label, day_number, others, self.market.snapshot(), crisis,
                 self._own_history(agent), self._public_chronicle(),
                 self._private_context(agent), self._social_context(agent, boycotts),
@@ -328,11 +328,11 @@ class SimulationEngine:
 
             record = {
                 "round": round_num, "agent": agent.name, "role": agent.role.value,
-                **action.model_dump(),
+                **action.model_dump(), "thought": thought,
             }
             self.transactions.append(record)
             round_transactions.append(record)
-            save_transaction(self.conn, round_num, agent, action)
+            save_transaction(self.conn, round_num, agent, action, thought)
 
             price_note = f" @ {action.price_per_unit}g" if action.price_per_unit else ""
             blocked_note = " [BLOCKED by boycott]" if blocked else ""

@@ -796,6 +796,10 @@ for rnd in sorted(tx["round"].unique(), reverse=True):
             st.markdown(f"💀 **{drow['agent']} ({drow['role']}) died** — {drow['cause']}")
         for _, row in round_tx.iterrows():
             st.markdown(f"- {format_event(row)}")
+            thought = row.get("thought")
+            if thought:
+                with st.expander(f"🧠 {row['agent']}'s thinking", expanded=False):
+                    st.text(thought)
 
 st.divider()
 st.subheader("📜 Transaction log")
