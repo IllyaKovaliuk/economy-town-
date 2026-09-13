@@ -1,8 +1,8 @@
 {
-  "last_round": 29,
+  "last_round": 30,
   "market_prices": {
-    "food": 6.49,
-    "water": 2.25,
+    "food": 6.88,
+    "water": 2.27,
     "debt_note": 1.0
   },
   "agents": [
@@ -15,7 +15,7 @@
         "food": -3.666666666666665,
         "water": -3.666666666666667,
         "debt_note": 0,
-        "gold": 150
+        "gold": 120.0
       },
       "status": "dead",
       "critical_streak": 6,
@@ -27,10 +27,10 @@
       "personality": "practical, values stability",
       "knowledge": "Never saw the old financial world. Trusts only what can be eaten or drunk right now.",
       "resources": {
-        "food": 12.546666666666672,
-        "water": 4.333333333333329,
+        "food": 11.880000000000006,
+        "water": 3.999999999999995,
         "debt_note": 0,
-        "gold": 15
+        "gold": 12.0
       },
       "status": "ok",
       "critical_streak": 0,
@@ -42,13 +42,13 @@
       "personality": "risk-taking, drives a hard bargain",
       "knowledge": "Has heard scattered stories about 'banks' and 'credit' from elders. Curious about new ideas if he sees a personal upside in them.",
       "resources": {
-        "food": -7.333333333333334,
-        "water": -0.33333333333333165,
+        "food": -8.0,
+        "water": -0.666666666666665,
         "debt_note": 0,
-        "gold": 15
+        "gold": 12.0
       },
       "status": "critical",
-      "critical_streak": 1,
+      "critical_streak": 2,
       "location": "Workshops"
     },
     {
@@ -57,10 +57,10 @@
       "personality": "paranoid, quick to suspect hidden motives",
       "knowledge": "Grew up hearing warnings that any centralized system always ends in betrayal. Assumes anyone offering an easy deal wants something bigger in return.",
       "resources": {
-        "food": -6.0,
-        "water": 2.3333333333333335,
+        "food": -6.666666666666667,
+        "water": 2.0,
         "debt_note": 0,
-        "gold": 15
+        "gold": 12.0
       },
       "status": "hungry",
       "critical_streak": 0,
@@ -72,10 +72,10 @@
       "personality": "a gossip who trades in information as much as goods",
       "knowledge": "Doesn't have much to offer materially, but always knows who owes whom and who said what to whom. Treats information itself as a kind of currency.",
       "resources": {
-        "food": -4.666666666666666,
-        "water": 1.3333333333333388,
+        "food": -5.333333333333333,
+        "water": 1.0000000000000056,
         "debt_note": 0,
-        "gold": 10
+        "gold": 8.0
       },
       "status": "hungry",
       "critical_streak": 0,
@@ -87,10 +87,10 @@
       "personality": "nihilistic, quietly hoards for himself",
       "knowledge": "Doesn't believe any system, old or new, will protect him in the end. Prefers to hoard quietly rather than join anyone's scheme.",
       "resources": {
-        "food": -3.3333333333333326,
-        "water": 2.3333333333333295,
+        "food": -3.999999999999999,
+        "water": 1.9999999999999962,
         "debt_note": 0,
-        "gold": 20
+        "gold": 16.0
       },
       "status": "hungry",
       "critical_streak": 0,
@@ -102,13 +102,13 @@
       "personality": "generous, but doesn't trust debt",
       "knowledge": "Used to direct exchange. Considers any paper or promise a waste of time.",
       "resources": {
-        "food": -2.666666666666666,
-        "water": -0.9666666666666694,
+        "food": -3.3333333333333326,
+        "water": -1.3000000000000027,
         "debt_note": 0,
-        "gold": 5
+        "gold": 4.0
       },
       "status": "critical",
-      "critical_streak": 3,
+      "critical_streak": 4,
       "location": "Farms"
     },
     {
@@ -117,10 +117,10 @@
       "personality": "suspicious of the financier",
       "knowledge": "Suspects the Financier is out to profit off others. Doesn't trust his offers without proof.",
       "resources": {
-        "food": -2.0,
-        "water": 1.2333333333333274,
+        "food": -2.6666666666666665,
+        "water": 0.8999999999999941,
         "debt_note": 0,
-        "gold": 5
+        "gold": 4.0
       },
       "status": "hungry",
       "critical_streak": 0,
@@ -132,10 +132,10 @@
       "personality": "a secretive loner",
       "knowledge": "Keeps to himself and rarely reveals how much he actually has stored away. Prefers quiet, private deals over anything said in front of the whole town.",
       "resources": {
-        "food": -3.2400000000000246,
-        "water": 3.3333333333333357,
+        "food": -3.906666666666691,
+        "water": 3.000000000000002,
         "debt_note": 0,
-        "gold": 5
+        "gold": 4.0
       },
       "status": "hungry",
       "critical_streak": 0,
@@ -147,10 +147,10 @@
       "personality": "an alliance-builder who plays people, not just crops",
       "knowledge": "Believes surviving the collapse is about who you know, not just what you have. Actively cultivates private alliances and isn't above a little manipulation.",
       "resources": {
-        "food": -3.206666666666665,
-        "water": 2.933333333333338,
+        "food": -3.8733333333333317,
+        "water": 2.6000000000000045,
         "debt_note": 0,
-        "gold": 8
+        "gold": 6.4
       },
       "status": "hungry",
       "critical_streak": 0,
