@@ -1,7 +1,7 @@
 {
-  "last_round": 37,
+  "last_round": 38,
   "market_prices": {
-    "food": 10.2,
+    "food": 10.54,
     "water": 2.29,
     "debt_note": 1.0
   },
@@ -27,12 +27,12 @@
       "personality": "practical, values stability",
       "knowledge": "Never saw the old financial world. Trusts only what can be eaten or drunk right now.",
       "resources": {
-        "food": 0.21333333333334026,
-        "water": 1.6666666666666612,
+        "food": -0.45333333333332637,
+        "water": 1.333333333333328,
         "debt_note": 0,
         "gold": 12.0
       },
-      "status": "ok",
+      "status": "hungry",
       "critical_streak": 0,
       "location": "Workshops"
     },
@@ -57,13 +57,13 @@
       "personality": "paranoid, quick to suspect hidden motives",
       "knowledge": "Grew up hearing warnings that any centralized system always ends in betrayal. Assumes anyone offering an easy deal wants something bigger in return.",
       "resources": {
-        "food": -4.333333333333334,
-        "water": -0.333333333333333,
+        "food": -5.000000000000001,
+        "water": -0.6666666666666663,
         "debt_note": 0,
         "gold": 12.0
       },
       "status": "critical",
-      "critical_streak": 1,
+      "critical_streak": 2,
       "location": "Workshops"
     },
     {
@@ -72,13 +72,13 @@
       "personality": "a gossip who trades in information as much as goods",
       "knowledge": "Doesn't have much to offer materially, but always knows who owes whom and who said what to whom. Treats information itself as a kind of currency.",
       "resources": {
-        "food": -9.999999999999998,
-        "water": -1.3333333333333275,
+        "food": -10.666666666666664,
+        "water": -1.6666666666666607,
         "debt_note": 0,
         "gold": 8.0
       },
       "status": "critical",
-      "critical_streak": 4,
+      "critical_streak": 5,
       "location": "Workshops"
     },
     {
@@ -87,13 +87,13 @@
       "personality": "nihilistic, quietly hoards for himself",
       "knowledge": "Doesn't believe any system, old or new, will protect him in the end. Prefers to hoard quietly rather than join anyone's scheme.",
       "resources": {
-        "food": -8.666666666666666,
-        "water": -0.33333333333333676,
+        "food": -9.333333333333332,
+        "water": -0.6666666666666701,
         "debt_note": 0,
         "gold": 16.0
       },
       "status": "critical",
-      "critical_streak": 2,
+      "critical_streak": 3,
       "location": "Workshops"
     },
     {
@@ -117,13 +117,13 @@
       "personality": "suspicious of the financier",
       "knowledge": "Suspects the Financier is out to profit off others. Doesn't trust his offers without proof.",
       "resources": {
-        "food": -7.333333333333334,
-        "water": -1.433333333333339,
+        "food": -8.0,
+        "water": -1.7666666666666722,
         "debt_note": 0,
         "gold": 4.0
       },
-      "status": "critical",
-      "critical_streak": 5,
+      "status": "dead",
+      "critical_streak": 6,
       "location": "Workshops"
     },
     {
@@ -132,8 +132,8 @@
       "personality": "a secretive loner",
       "knowledge": "Keeps to himself and rarely reveals how much he actually has stored away. Prefers quiet, private deals over anything said in front of the whole town.",
       "resources": {
-        "food": -8.573333333333359,
-        "water": 0.6666666666666687,
+        "food": -9.240000000000025,
+        "water": 0.3333333333333354,
         "debt_note": 0,
         "gold": 4.0
       },
@@ -147,13 +147,13 @@
       "personality": "an alliance-builder who plays people, not just crops",
       "knowledge": "Believes surviving the collapse is about who you know, not just what you have. Actively cultivates private alliances and isn't above a little manipulation.",
       "resources": {
-        "food": -8.54,
-        "water": 0.26666666666667144,
+        "food": -9.206666666666665,
+        "water": -0.06666666666666188,
         "debt_note": 0,
         "gold": 6.4
       },
-      "status": "hungry",
-      "critical_streak": 0,
+      "status": "critical",
+      "critical_streak": 1,
       "location": "Farms"
     }
   ]
