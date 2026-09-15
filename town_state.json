@@ -1,7 +1,7 @@
 {
-  "last_round": 40,
+  "last_round": 41,
   "market_prices": {
-    "food": 11.37,
+    "food": 11.51,
     "water": 2.29,
     "debt_note": 1.0
   },
@@ -15,7 +15,7 @@
         "food": -3.666666666666665,
         "water": -3.666666666666667,
         "debt_note": 0,
-        "gold": 120.0
+        "gold": 96.0
       },
       "status": "dead",
       "critical_streak": 6,
@@ -27,10 +27,10 @@
       "personality": "practical, values stability",
       "knowledge": "Never saw the old financial world. Trusts only what can be eaten or drunk right now.",
       "resources": {
-        "food": -1.7866666666666595,
-        "water": 0.6666666666666614,
+        "food": -2.453333333333326,
+        "water": 0.3333333333333281,
         "debt_note": 0,
-        "gold": 12.0
+        "gold": 9.6
       },
       "status": "hungry",
       "critical_streak": 0,
@@ -45,7 +45,7 @@
         "food": -10.666666666666664,
         "water": -1.999999999999998,
         "debt_note": 0,
-        "gold": 12.0
+        "gold": 9.6
       },
       "status": "dead",
       "critical_streak": 6,
@@ -57,13 +57,13 @@
       "personality": "paranoid, quick to suspect hidden motives",
       "knowledge": "Grew up hearing warnings that any centralized system always ends in betrayal. Assumes anyone offering an easy deal wants something bigger in return.",
       "resources": {
-        "food": -6.333333333333335,
-        "water": -1.3333333333333328,
+        "food": -7.000000000000002,
+        "water": -1.666666666666666,
         "debt_note": 0,
-        "gold": 12.0
+        "gold": 9.6
       },
       "status": "critical",
-      "critical_streak": 4,
+      "critical_streak": 5,
       "location": "Workshops"
     },
     {
@@ -75,7 +75,7 @@
         "food": -11.33333333333333,
         "water": -1.999999999999994,
         "debt_note": 0,
-        "gold": 8.0
+        "gold": 6.4
       },
       "status": "dead",
       "critical_streak": 6,
@@ -87,13 +87,13 @@
       "personality": "nihilistic, quietly hoards for himself",
       "knowledge": "Doesn't believe any system, old or new, will protect him in the end. Prefers to hoard quietly rather than join anyone's scheme.",
       "resources": {
-        "food": -10.666666666666664,
-        "water": -1.3333333333333366,
+        "food": -11.33333333333333,
+        "water": -1.6666666666666698,
         "debt_note": 0,
-        "gold": 16.0
+        "gold": 12.8
       },
-      "status": "critical",
-      "critical_streak": 5,
+      "status": "dead",
+      "critical_streak": 6,
       "location": "Workshops"
     },
     {
@@ -105,7 +105,7 @@
         "food": -4.666666666666666,
         "water": -1.9666666666666692,
         "debt_note": 0,
-        "gold": 4.0
+        "gold": 3.2
       },
       "status": "dead",
       "critical_streak": 6,
@@ -120,7 +120,7 @@
         "food": -8.0,
         "water": -1.7666666666666722,
         "debt_note": 0,
-        "gold": 4.0
+        "gold": 3.2
       },
       "status": "dead",
       "critical_streak": 6,
@@ -132,13 +132,13 @@
       "personality": "a secretive loner",
       "knowledge": "Keeps to himself and rarely reveals how much he actually has stored away. Prefers quiet, private deals over anything said in front of the whole town.",
       "resources": {
-        "food": -10.573333333333357,
-        "water": -0.3333333333333312,
+        "food": -11.240000000000023,
+        "water": -0.6666666666666645,
         "debt_note": 0,
-        "gold": 4.0
+        "gold": 3.2
       },
       "status": "critical",
-      "critical_streak": 1,
+      "critical_streak": 2,
       "location": "Farms"
     },
     {
@@ -147,13 +147,13 @@
       "personality": "an alliance-builder who plays people, not just crops",
       "knowledge": "Believes surviving the collapse is about who you know, not just what you have. Actively cultivates private alliances and isn't above a little manipulation.",
       "resources": {
-        "food": -10.539999999999997,
-        "water": -0.7333333333333285,
+        "food": -11.206666666666663,
+        "water": -1.0666666666666618,
         "debt_note": 0,
-        "gold": 6.4
+        "gold": 5.12
       },
       "status": "critical",
-      "critical_streak": 3,
+      "critical_streak": 4,
       "location": "Farms"
     }
   ]
