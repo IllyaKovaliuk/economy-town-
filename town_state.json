@@ -1,8 +1,8 @@
 {
-  "last_round": 42,
+  "last_round": 43,
   "market_prices": {
-    "food": 11.61,
-    "water": 2.29,
+    "food": 11.7,
+    "water": 2.31,
     "debt_note": 1.0
   },
   "agents": [
@@ -27,13 +27,13 @@
       "personality": "practical, values stability",
       "knowledge": "Never saw the old financial world. Trusts only what can be eaten or drunk right now.",
       "resources": {
-        "food": -3.1199999999999926,
-        "water": -5.218048215738236e-15,
+        "food": -3.786666666666659,
+        "water": -0.33333333333333853,
         "debt_note": 0,
         "gold": 9.6
       },
       "status": "critical",
-      "critical_streak": 1,
+      "critical_streak": 2,
       "location": "Workshops"
     },
     {
@@ -132,13 +132,13 @@
       "personality": "a secretive loner",
       "knowledge": "Keeps to himself and rarely reveals how much he actually has stored away. Prefers quiet, private deals over anything said in front of the whole town.",
       "resources": {
-        "food": -11.90666666666669,
-        "water": -0.9999999999999978,
+        "food": -12.573333333333355,
+        "water": -1.333333333333331,
         "debt_note": 0,
         "gold": 3.2
       },
       "status": "critical",
-      "critical_streak": 3,
+      "critical_streak": 4,
       "location": "Farms"
     },
     {
@@ -147,13 +147,13 @@
       "personality": "an alliance-builder who plays people, not just crops",
       "knowledge": "Believes surviving the collapse is about who you know, not just what you have. Actively cultivates private alliances and isn't above a little manipulation.",
       "resources": {
-        "food": -11.87333333333333,
-        "water": -1.399999999999995,
+        "food": -12.539999999999996,
+        "water": -1.7333333333333283,
         "debt_note": 0,
         "gold": 5.12
       },
-      "status": "critical",
-      "critical_streak": 5,
+      "status": "dead",
+      "critical_streak": 6,
       "location": "Farms"
     }
   ]
