@@ -1,7 +1,7 @@
 {
-  "last_round": 44,
+  "last_round": 45,
   "market_prices": {
-    "food": 11.84,
+    "food": 11.98,
     "water": 2.33,
     "debt_note": 1.0
   },
@@ -27,13 +27,13 @@
       "personality": "practical, values stability",
       "knowledge": "Never saw the old financial world. Trusts only what can be eaten or drunk right now.",
       "resources": {
-        "food": -4.453333333333326,
-        "water": -0.6666666666666718,
+        "food": -5.119999999999993,
+        "water": -1.000000000000005,
         "debt_note": 0,
         "gold": 9.6
       },
       "status": "critical",
-      "critical_streak": 3,
+      "critical_streak": 4,
       "location": "Workshops"
     },
     {
@@ -132,13 +132,13 @@
       "personality": "a secretive loner",
       "knowledge": "Keeps to himself and rarely reveals how much he actually has stored away. Prefers quiet, private deals over anything said in front of the whole town.",
       "resources": {
-        "food": -13.240000000000022,
-        "water": -1.6666666666666643,
+        "food": -13.906666666666688,
+        "water": -1.9999999999999976,
         "debt_note": 0,
         "gold": 3.2
       },
-      "status": "critical",
-      "critical_streak": 5,
+      "status": "dead",
+      "critical_streak": 6,
       "location": "Farms"
     },
     {
