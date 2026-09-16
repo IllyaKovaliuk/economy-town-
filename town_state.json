@@ -1,7 +1,7 @@
 {
-  "last_round": 45,
+  "last_round": 46,
   "market_prices": {
-    "food": 11.98,
+    "food": 12.12,
     "water": 2.33,
     "debt_note": 1.0
   },
@@ -27,13 +27,13 @@
       "personality": "practical, values stability",
       "knowledge": "Never saw the old financial world. Trusts only what can be eaten or drunk right now.",
       "resources": {
-        "food": -5.119999999999993,
-        "water": -1.000000000000005,
+        "food": -5.78666666666666,
+        "water": -1.3333333333333384,
         "debt_note": 0,
         "gold": 9.6
       },
       "status": "critical",
-      "critical_streak": 4,
+      "critical_streak": 5,
       "location": "Workshops"
     },
     {
@@ -103,7 +103,7 @@
       "knowledge": "Used to direct exchange. Considers any paper or promise a waste of time.",
       "resources": {
         "food": -4.666666666666666,
-        "water": -1.9666666666666692,
+        "water": 0,
         "debt_note": 0,
         "gold": 3.2
       },
@@ -118,7 +118,7 @@
       "knowledge": "Suspects the Financier is out to profit off others. Doesn't trust his offers without proof.",
       "resources": {
         "food": -8.0,
-        "water": -1.7666666666666722,
+        "water": 0,
         "debt_note": 0,
         "gold": 3.2
       },
@@ -133,7 +133,7 @@
       "knowledge": "Keeps to himself and rarely reveals how much he actually has stored away. Prefers quiet, private deals over anything said in front of the whole town.",
       "resources": {
         "food": -13.906666666666688,
-        "water": -1.9999999999999976,
+        "water": 0,
         "debt_note": 0,
         "gold": 3.2
       },
@@ -148,7 +148,7 @@
       "knowledge": "Believes surviving the collapse is about who you know, not just what you have. Actively cultivates private alliances and isn't above a little manipulation.",
       "resources": {
         "food": -12.539999999999996,
-        "water": -1.7333333333333283,
+        "water": 0,
         "debt_note": 0,
         "gold": 5.12
       },
