@@ -1,5 +1,5 @@
 {
-  "last_round": 46,
+  "last_round": 47,
   "market_prices": {
     "food": 12.12,
     "water": 2.33,
@@ -27,13 +27,13 @@
       "personality": "practical, values stability",
       "knowledge": "Never saw the old financial world. Trusts only what can be eaten or drunk right now.",
       "resources": {
-        "food": -5.78666666666666,
-        "water": -1.3333333333333384,
+        "food": -6.453333333333327,
+        "water": -1.6666666666666716,
         "debt_note": 0,
         "gold": 9.6
       },
-      "status": "critical",
-      "critical_streak": 5,
+      "status": "dead",
+      "critical_streak": 6,
       "location": "Workshops"
     },
     {
