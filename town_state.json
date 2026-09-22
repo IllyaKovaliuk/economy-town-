@@ -1,5 +1,5 @@
 {
-  "last_round": 85,
+  "last_round": 86,
   "market_prices": {
     "food": 12.12,
     "water": 2.33,
@@ -15,7 +15,7 @@
         "food": -3.666666666666665,
         "water": -3.666666666666667,
         "debt_note": 0,
-        "gold": 61.44
+        "gold": 49.15
       },
       "status": "dead",
       "critical_streak": 6,
@@ -30,7 +30,7 @@
         "food": -6.453333333333327,
         "water": -1.6666666666666716,
         "debt_note": 0,
-        "gold": 6.14
+        "gold": 4.91
       },
       "status": "dead",
       "critical_streak": 6,
@@ -45,7 +45,7 @@
         "food": -10.666666666666664,
         "water": -1.999999999999998,
         "debt_note": 0,
-        "gold": 6.14
+        "gold": 4.91
       },
       "status": "dead",
       "critical_streak": 6,
@@ -60,7 +60,7 @@
         "food": -7.666666666666669,
         "water": -1.9999999999999993,
         "debt_note": 0,
-        "gold": 6.14
+        "gold": 4.91
       },
       "status": "dead",
       "critical_streak": 6,
@@ -75,7 +75,7 @@
         "food": -11.33333333333333,
         "water": -1.999999999999994,
         "debt_note": 0,
-        "gold": 4.1
+        "gold": 3.28
       },
       "status": "dead",
       "critical_streak": 6,
@@ -90,7 +90,7 @@
         "food": -11.33333333333333,
         "water": -1.6666666666666698,
         "debt_note": 0,
-        "gold": 8.190000000000001
+        "gold": 6.550000000000002
       },
       "status": "dead",
       "critical_streak": 6,
@@ -105,7 +105,7 @@
         "food": -4.666666666666666,
         "water": 0.0,
         "debt_note": 0,
-        "gold": 2.05
+        "gold": 1.64
       },
       "status": "dead",
       "critical_streak": 6,
@@ -120,7 +120,7 @@
         "food": -8.0,
         "water": 0.0,
         "debt_note": 0,
-        "gold": 2.05
+        "gold": 1.64
       },
       "status": "dead",
       "critical_streak": 6,
@@ -135,7 +135,7 @@
         "food": -13.906666666666688,
         "water": 0.0,
         "debt_note": 0,
-        "gold": 2.05
+        "gold": 1.64
       },
       "status": "dead",
       "critical_streak": 6,
@@ -150,7 +150,7 @@
         "food": -12.539999999999996,
         "water": 0.0,
         "debt_note": 0,
-        "gold": 3.28
+        "gold": 2.6199999999999997
       },
       "status": "dead",
       "critical_streak": 6,
