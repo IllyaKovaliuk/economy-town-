@@ -1,5 +1,5 @@
 {
-  "last_round": 94,
+  "last_round": 95,
   "market_prices": {
     "food": 12.12,
     "water": 2.33,
@@ -102,7 +102,7 @@
       "personality": "generous, but doesn't trust debt",
       "knowledge": "Used to direct exchange. Considers any paper or promise a waste of time.",
       "resources": {
-        "food": -4.666666666666666,
+        "food": 0,
         "water": 0.0,
         "debt_note": 0,
         "gold": 1.64
@@ -117,7 +117,7 @@
       "personality": "suspicious of the financier",
       "knowledge": "Suspects the Financier is out to profit off others. Doesn't trust his offers without proof.",
       "resources": {
-        "food": -8.0,
+        "food": 0,
         "water": 0.0,
         "debt_note": 0,
         "gold": 1.64
@@ -132,7 +132,7 @@
       "personality": "a secretive loner",
       "knowledge": "Keeps to himself and rarely reveals how much he actually has stored away. Prefers quiet, private deals over anything said in front of the whole town.",
       "resources": {
-        "food": -13.906666666666688,
+        "food": 0,
         "water": 0.0,
         "debt_note": 0,
         "gold": 1.64
@@ -147,7 +147,7 @@
       "personality": "an alliance-builder who plays people, not just crops",
       "knowledge": "Believes surviving the collapse is about who you know, not just what you have. Actively cultivates private alliances and isn't above a little manipulation.",
       "resources": {
-        "food": -12.539999999999996,
+        "food": 0,
         "water": 0.0,
         "debt_note": 0,
         "gold": 2.6199999999999997
